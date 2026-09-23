@@ -1,0 +1,3 @@
+TODO: Change the look of most boxes to be less rounded making it look a little "older"
+
+TODO: Send a hashed password to the back end
