@@ -1,7 +1,3 @@
-TODO: Fix "Spenden Verwaltung" Tab not working in dark mode
-
-TODO: Add CSV Export in settings menu
-
 TODO: Fix no Scrollbar inside "Spenden Verwaltun" Tab
 
 TODO: Increase the size of the "Speichern" button in the "Einstellungen" tab

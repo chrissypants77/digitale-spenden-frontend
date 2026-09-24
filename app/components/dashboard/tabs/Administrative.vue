@@ -6,6 +6,7 @@ import {addManualDonation, type ManualDonationOptions} from "~/composables/reque
 import { getPaginationRowModel } from '@tanstack/vue-table'
 import {getDonations, type GetDonationsReturn} from "~/composables/requests/getDonations.ts";
 import {deleteDonation} from "~/composables/requests/deleteDonation.ts";
+import { exportDonations } from "~/composables/requests/exportDonations";
 
 const toast = useToast()
 
@@ -165,6 +166,7 @@ const rowSelection = ref({})
 
 const modalStatusDelete = ref(false)
 const modalStatusAdd = ref(false)
+const modalStatusCsvExport = ref(false)
 
 const deleteColumns = unref(columns).filter((value, index) => value.id !== "select")
 
@@ -175,6 +177,12 @@ const form = reactive({
   email: '',
   amount: 0,
   name: ''
+})
+
+const exportForm = reactive({
+  exportAll: true,
+  startDate: '',
+  endDate: ''
 })
 
 const paymentTypes = [
@@ -242,6 +250,28 @@ async function addDonation() {
   const response = await addManualDonation(form as ManualDonationOptions)
   if (response) {
     donationData.value = await loadDonations()
+  }
+}
+
+async function exportDonationsEvent() {
+  const response = await exportDonations(exportForm)
+  if (response) {
+    const blob = new Blob([response], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const fileName = !exportForm.exportAll
+        ? `-${exportForm.startDate}-${exportForm.endDate}`
+        : ""
+    link.download = `spenden-export${fileName}.csv`;
+    link.click();
+
+    toast.add({
+      title: "Exportieren erfolgreich",
+      description: "Die Spenden wurden erfolgreich exportiert",
+      icon: "i-lucide-database-check",
+      color: "success"
+    })
   }
 }
 
@@ -358,6 +388,31 @@ const pagination = ref({
                 @click="deleteSelectedRows()"
             />
           </div>
+        </template>
+      </UModal>
+      <UModal
+        v-model:open="modalStatusCsvExport"
+        title="CSV Spenden Export"
+        description="Exportiere Spenden als CSV"
+        :ui="{
+          content: '',
+          body: 'p-6'
+        }"
+      >
+        <UButton label="CSV Spenden Export" color="primary" size="xl"/>
+        <template #body>
+          <div class="flex flex-col gap-4">
+            <UFormField name="exportAll">
+              <UCheckbox label="Alle Spenden Exportieren" v-model="exportForm.exportAll"/>
+            </UFormField>
+            <UFormField label="Start Datum" name="startDate" description="Das Start Datum von welchem Spenden exportiert werden sollen">
+              <UInput :disabled="exportForm.exportAll" placeholder="Start Datum" type="date" v-model="exportForm.startDate"/>
+            </UFormField>
+            <UFormField label="End Datum" name="endDate" description="Das End Datum von welchem Spenden exportiert werden sollen">
+              <UInput :disabled="exportForm.exportAll" placeholder="Start Datum" type="date" v-model="exportForm.endDate"/>
+            </UFormField>
+          </div>
+          <UButton class="mt-5" label="Exportieren" v-on:click="exportDonationsEvent"/>
         </template>
       </UModal>
     </div>
