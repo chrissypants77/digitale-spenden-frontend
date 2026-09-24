@@ -1,3 +1,9 @@
-TODO: Change the look of most boxes to be less rounded making it look a little "older"
+TODO: Fix "Spenden Verwaltung" Tab not working in dark mode
 
-TODO: Send a hashed password to the back end
+TODO: Add CSV Export in settings menu
+
+TODO: Fix no Scrollbar inside "Spenden Verwaltun" Tab
+
+TODO: Increase the size of the "Speichern" button in the "Einstellungen" tab
+
+TODO: Add QR Code generation in "Einstellung" tab

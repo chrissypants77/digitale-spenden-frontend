@@ -26,7 +26,7 @@ async function confirmPayment() {
       return
     }
 
-    if (data.status !== "payed") {
+    if (data.status !== "paid") {
       error.value = true
       return
     }

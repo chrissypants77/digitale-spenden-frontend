@@ -1,4 +1,10 @@
 # Update Log
+# Update V 0.0.6
+24/09/2026
+## Additions
+- Added Donations with Strip
+- Added Confirmation page and cancel page
+
 # Update V 0.0.5
 16/09/2026
 ## Changes

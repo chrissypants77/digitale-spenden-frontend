@@ -52,8 +52,8 @@ const columns: TableColumn<GetDonationsReturn>[] = [
     header: 'ID',
     meta: {
       class: {
-        th: 'text-center text-black',
-        td: 'text-center text-black'
+        th: 'text-center',
+        td: 'text-center text-default'
       }
     }
   },
@@ -71,8 +71,8 @@ const columns: TableColumn<GetDonationsReturn>[] = [
     },
     meta: {
       class: {
-        th: 'text-center text-black',
-        td: 'text-center text-black'
+        th: 'text-center',
+        td: 'text-center text-default'
       }
     }
   },
@@ -81,8 +81,8 @@ const columns: TableColumn<GetDonationsReturn>[] = [
     header: 'Email',
     meta: {
       class: {
-        th: 'text-left text-black',
-        td: 'text-left text-black'
+        th: 'text-left',
+        td: 'text-left text-default'
       }
     }
   },
@@ -91,8 +91,8 @@ const columns: TableColumn<GetDonationsReturn>[] = [
     header: 'Name',
     meta: {
       class: {
-        th: 'text-left text-black',
-        td: 'text-left text-black'
+        th: 'text-left',
+        td: 'text-left text-default'
       }
     }
   },
