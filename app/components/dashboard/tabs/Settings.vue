@@ -1,8 +1,28 @@
 <script setup lang="ts">
+import QRCode from 'qrcode'
 const settingsStore = useSettingsStore()
 const userStore = useUserStore()
 
 const settingsCopy = ref(structuredClone(toRaw(settingsStore.configs)))
+
+function generateQrCode() {
+  const url = `${window.location.origin}/donate`
+
+  QRCode.toDataURL(url, {
+    width: 1000,
+    margin: 2,
+    errorCorrectionLevel: 'H'
+  }).then((dataUrl) => {
+    const link = document.createElement('a')
+
+    link.href = dataUrl
+    link.download = 'spenden-qr-code.png'
+
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  })
+}
 
 </script>
 
@@ -73,7 +93,17 @@ const settingsCopy = ref(structuredClone(toRaw(settingsStore.configs)))
         </template>
 
         <template #default>
-          Angemeldet als Benutzer: {{ userStore.username }}
+          <div class="flex flex-col gap-2">
+            <div>
+              <UBadge size="xl" color="primary" variant="subtle">
+                Angemeldet als Benutzer: {{ userStore.username }}
+              </UBadge>
+            </div>
+            <div>
+              <UButton label="QR Code Generieren" size="xl" v-on:click="generateQrCode()"/>
+            </div>
+          </div>
+
         </template>
       </UCard>
     </div>
@@ -82,6 +112,7 @@ const settingsCopy = ref(structuredClone(toRaw(settingsStore.configs)))
         v-on:click="settingsStore.saveSettings(settingsCopy)"
         class="self-start mt-4"
         label="Speichern"
+        size="xl"
     />
   </div>
 </template>

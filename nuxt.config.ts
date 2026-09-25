@@ -2,7 +2,8 @@
 export default defineNuxtConfig({
     runtimeConfig: {
         public: {
-            apiBaseUrl: 'http://localhost:8000/api/v1'
+            apiBaseUrl: 'http://localhost:8000/api/v1',
+            geoapifyApiKey: process.env.GEOAPIFY_AUTOCOMPLETE_KEY
         }
     },
     nitro: {
