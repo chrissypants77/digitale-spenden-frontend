@@ -1,4 +1,4 @@
-export interface initializeDonationReturn {
+export interface InitializeDonationReturn {
     id: string
     processor: string
     redirectUrl: string
@@ -6,12 +6,13 @@ export interface initializeDonationReturn {
 }
 
 
-export async function initializeDonation(donationAmount: number): Promise<initializeDonationReturn | false> {
-    const config = useRuntimeConfig()
+export async function initializeDonation(donationAmount: number): Promise<InitializeDonationReturn | false> {
+    const { $api } = useNuxtApp()
     const generatedId = crypto.randomUUID()
+
     try {
-        const request = await $fetch.raw(`${config.public.apiBaseUrl}/donation/begin`, {
-            method: "POST",
+        return await $api<InitializeDonationReturn>(`/donation/begin`, {
+            method: 'GET',
             body: JSON.stringify({
                 id: generatedId,
                 amount: donationAmount,
@@ -19,11 +20,6 @@ export async function initializeDonation(donationAmount: number): Promise<initia
                 cancelUrl: "http://"+window.location.host+"/payment/cancel?id=" + generatedId,
             })
         })
-        if (request.ok) {
-            console.log(request._data)
-            return request._data as initializeDonationReturn
-        }
-        return false
     } catch (error) {
         return false
     }

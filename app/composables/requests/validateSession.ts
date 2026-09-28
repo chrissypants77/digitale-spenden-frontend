@@ -4,26 +4,13 @@ interface RequestReturn {
 }
 
 export async function validateSession(): Promise<RequestReturn | false> {
-    const config = useRuntimeConfig()
-
-    const session = await cookieStore.get("userSession")
-    if (!session) return false
+    const { $authApi } = useNuxtApp()
 
     try {
-        const request = await $fetch.raw(`${config.public.apiBaseUrl}/admin/authenticate`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${session?.value}`
-            }
+        return await $authApi<RequestReturn>(`/admin/authenticate`, {
+            method: 'GET'
         })
-        if (request.ok) {
-            return JSON.parse(request._data as string) as RequestReturn
-        }
-        return false
     } catch (error) {
         return false
     }
-
-
-
 }

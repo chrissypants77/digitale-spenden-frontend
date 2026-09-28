@@ -1,3 +1,5 @@
+import {id} from "@nuxt/ui/locale";
+
 interface Donator {
     email: string
     name: string
@@ -15,26 +17,13 @@ export interface GetDonationsReturn {
 }
 
 export async function getDonations(): Promise<GetDonationsReturn[] | false> {
-    const config = useRuntimeConfig()
-
-    const session = await cookieStore.get("userSession")
-    if (!session) return false
+    const { $authApi } = useNuxtApp()
 
     try {
-        const request = await $fetch.raw(`${config.public.apiBaseUrl}/donation/admin/list`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${session?.value}`
-            }
+        return await $authApi<GetDonationsReturn[]>(`/donation/admin/list`, {
+            method: 'GET'
         })
-        if (request.ok) {
-            return request._data as GetDonationsReturn[]
-        }
-        return false
     } catch (error) {
         return false
     }
-
-
-
 }

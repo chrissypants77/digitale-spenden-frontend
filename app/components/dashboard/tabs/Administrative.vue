@@ -155,7 +155,7 @@ async function deleteSelectedRows() {
 
   if (!isDeleted) {
     toast.add({
-      title: "Erfolgreich Gelöscht",
+      title: "Fehler beim Löschen",
       description: "Fehler bei der Löschung der Daten",
       icon: "i-lucide-database-x",
       color: "error"
@@ -303,6 +303,7 @@ async function sendTaxReceipt() {
       color: "error"
     })
   }
+  modalSendTaxReceipt.value = false
 }
 
 const pagination = ref({

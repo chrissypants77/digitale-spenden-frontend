@@ -1,22 +1,17 @@
 export async function sendNewTaxReceipt(id: string): Promise<boolean> {
-    const config = useRuntimeConfig()
-
-    const session = await cookieStore.get("userSession")
-    if (!session) return false
+    const { $authApi } = useNuxtApp()
 
     try {
-        const request = await $fetch.raw(`${config.public.apiBaseUrl}/donation/admin/resend_pdf_email`, {
+        await $authApi("/donation/admin/resend_pdf_email", {
             method: "POST",
-            headers: {
-                Authorization: `Bearer ${session?.value}`
-            },
             body: {
                 id
             }
         })
 
-        return request.ok
+        return true
     } catch (error) {
+        console.error("Failed to resend tax receipt:", error)
         return false
     }
 }

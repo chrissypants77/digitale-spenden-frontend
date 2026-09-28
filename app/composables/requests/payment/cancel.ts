@@ -1,15 +1,10 @@
 export async function cancel(id: string): Promise<unknown | false> {
-    const config = useRuntimeConfig()
+    const { $api } = useNuxtApp()
 
     try {
-        const request = await $fetch.raw(`${config.public.apiBaseUrl}/donation/cancel/${id}`, {
-            method: "GET",
+        return await $api(`/donation/cancel/${id}`, {
+            method: 'GET'
         })
-        if (request.ok) {
-            console.log(request._data)
-            return request._data
-        }
-        return false
     } catch (error) {
         return false
     }

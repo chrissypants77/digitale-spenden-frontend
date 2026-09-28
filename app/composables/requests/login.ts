@@ -4,20 +4,18 @@ interface ResponseData {
     name: string
 }
 
-export async function login(email: string, password: string): Promise<ResponseData | undefined> {
-    const config = useRuntimeConfig()
+export async function login(email: string, password: string): Promise<ResponseData | false> {
+    const { $api } = useNuxtApp()
 
-    const request = await $fetch.raw(`${config.public.apiBaseUrl}/admin/login`, {
-        method: "POST",
-        body: JSON.stringify({
-            email,
-            password,
+    try {
+        return await $api<ResponseData>(`/admin/login`, {
+            method: 'POST',
+            body: JSON.stringify({
+                email,
+                password,
+            })
         })
-    })
-
-    if (!request.ok) {
-        return undefined
+    } catch (error) {
+        return false
     }
-
-    return request._data as ResponseData
 }

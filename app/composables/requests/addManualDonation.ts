@@ -14,23 +14,19 @@ export interface ManualDonationOptions {
     currentTime?: boolean
 }
 
-export async function addManualDonation(options: ManualDonationOptions): Promise<boolean> {
-    const config = useRuntimeConfig()
-
-    const session = await cookieStore.get("userSession")
-    if (!session) return false
+export async function addManualDonation(
+    options: ManualDonationOptions
+): Promise<boolean> {
+    const { $authApi } = useNuxtApp()
 
     try {
-        const request = await $fetch.raw(`${config.public.apiBaseUrl}/donation/admin/create`, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${session?.value}`
-            },
-            body: JSON.stringify(options)
+        await $authApi('/donation/admin/create', {
+            method: 'POST',
+            body: options
         })
 
-        return request.ok
-    } catch(error) {
+        return true
+    } catch {
         return false
     }
 }

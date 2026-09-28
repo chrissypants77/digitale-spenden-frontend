@@ -1,4 +1,4 @@
-import {isEmpty} from "#ui/utils";
+import { isEmpty } from "#ui/utils"
 
 interface Donator {
     email: string
@@ -17,40 +17,44 @@ export interface GetNewDonationsReturn {
 }
 
 export async function getNewDonations(): Promise<GetNewDonationsReturn[] | false> {
+    const { $authApi } = useNuxtApp()
     const settings = useSettingsStore()
+
     const lastUpdate = settings.getConfig("display.lastLeaderboardUpdate")
-    let query: string
     const lastDate = new Date().toISOString()
+
+    let query: string
+
     if (!lastUpdate) {
-        query = encodeURI(lastDate)
+        query = lastDate
+
         settings.setConfig("display.lastLeaderboardUpdate", lastDate)
         settings.saveSettings()
     } else {
         query = lastUpdate
     }
 
-    const config = useRuntimeConfig()
-
-    const session = await cookieStore.get("userSession")
-    if (!session) return false
-
     try {
-        const request = await $fetch.raw(`${config.public.apiBaseUrl}/donation/leaderboard/since?t=${query}`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${session?.value}`
+        const data = await $authApi<GetNewDonationsReturn[]>(
+            "/donation/leaderboard/since",
+            {
+                method: "GET",
+                query: {
+                    t: query
+                }
             }
-        })
-        if (request.ok) {
-            console.log(request._data)
-            if (!isEmpty(request._data)) {
-                settings.setConfig("display.lastLeaderboardUpdate", lastDate)
-                settings.saveSettings()
-            }
-            return request._data as GetNewDonationsReturn[]
+        )
+
+        console.log(data)
+
+        if (!isEmpty(data)) {
+            settings.setConfig("display.lastLeaderboardUpdate", lastDate)
+            settings.saveSettings()
         }
-        return false
+
+        return data
     } catch (error) {
+        console.error("Failed to get new donations:", error)
         return false
     }
 }

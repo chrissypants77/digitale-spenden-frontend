@@ -7,17 +7,13 @@ interface Options {
 }
 
 export async function getTaxPdf(options: Options): Promise<BlobPart | false> {
-    const config = useRuntimeConfig()
+    const { $api } = useNuxtApp()
 
     try {
-        const request = await $fetch.raw(`${config.public.apiBaseUrl}/donation/confirmation`, {
-            method: "POST",
+        return await $api<BlobPart>(`/donation/confirmation`, {
+            method: 'POST',
             body: JSON.stringify(options)
         })
-        if (request.ok) {
-            return request._data as BlobPart
-        }
-        return false
     } catch (error) {
         return false
     }
