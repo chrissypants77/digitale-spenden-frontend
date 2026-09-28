@@ -6,17 +6,15 @@ export default defineNuxtConfig({
             geoapifyApiKey: process.env.GEOAPIFY_AUTOCOMPLETE_KEY
         }
     },
-    nitro: {
-        experimental: {
-            websocket: true
-        }
-
-    },
     ssr: false,
     modules: ['@nuxt/ui', '@nuxt/image', '@pinia/nuxt'],
 
     colorMode: {
         preference: "system"
+    },
+
+    image: {
+        provider: 'none'
     },
 
     devtools: {

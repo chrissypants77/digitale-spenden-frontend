@@ -10,11 +10,6 @@ const userStore = useUserStore()
 const items = computed<NavigationMenuItem[][]>(() => [
   [
     {
-      label: "Startseite",
-      icon: "i-lucide-home",
-      to: "/"
-    },
-    {
       label: "Anmelden",
       icon: "i-lucide-user",
       to: "/login",

@@ -1,5 +1,0 @@
-TODO: Fix no Scrollbar inside "Spenden Verwaltun" Tab
-
-TODO: Increase the size of the "Speichern" button in the "Einstellungen" tab
-
-TODO: Add QR Code generation in "Einstellung" tab

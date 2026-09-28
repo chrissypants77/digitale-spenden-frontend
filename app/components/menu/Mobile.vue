@@ -53,7 +53,7 @@ const mobileMenuOpen = ref(false);
         label="Spenden"
         color="primary"
         trailing-icon="i-lucide-heart"
-        to="/donate"
+        to="/"
         class="mt-3 w-full justify-center"
         @click="mobileMenuOpen = false"
     />

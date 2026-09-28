@@ -3,24 +3,13 @@ import type {TableColumn} from '@nuxt/ui'
 import {UCheckbox} from "#components";
 import {isEmpty} from "#ui/utils";
 import {addManualDonation, type ManualDonationOptions} from "~/composables/requests/addManualDonation.ts";
-import { getPaginationRowModel } from '@tanstack/vue-table'
+import {getPaginationRowModel} from '@tanstack/vue-table'
 import {getDonations, type GetDonationsReturn} from "~/composables/requests/getDonations.ts";
 import {deleteDonation} from "~/composables/requests/deleteDonation.ts";
-import { exportDonations } from "~/composables/requests/exportDonations";
+import {exportDonations} from "~/composables/requests/exportDonations";
+import {sendNewTaxReceipt} from "~/composables/requests/sendNewTaxReceipt.ts";
 
 const toast = useToast()
-
-async function loadDonations() {
-  const donations = await getDonations()
-  if (!donations) return []
-  donations.forEach(donation => {
-    donation.name = donation.donator.name
-    donation.email = donation.donator.email
-  })
-  return donations.reverse()
-}
-
-let donationData = ref(await loadDonations())
 
 const columns: TableColumn<GetDonationsReturn>[] = [
   {
@@ -117,6 +106,43 @@ const columns: TableColumn<GetDonationsReturn>[] = [
   }
 ]
 
+const table = useTemplateRef('table')
+
+const rowSelection = ref({})
+
+const modalStatusDelete = ref(false)
+const modalStatusAdd = ref(false)
+const modalStatusCsvExport = ref(false)
+const modalSendTaxReceipt = ref(false)
+
+const modalColumns = unref(columns).filter((value, index) => value.id !== "select")
+
+const form = reactive({
+  date: '',
+  currentTime: false,
+  payment_method: "cash",
+  email: '',
+  amount: 0,
+  name: ''
+})
+
+const exportForm = reactive({
+  exportAll: true,
+  startDate: '',
+  endDate: ''
+})
+
+const paymentTypes = [
+  {
+    label: "Bar",
+    value: "cash"
+  },
+  {
+    label: "Banküberweisung",
+    value: "bank"
+  }
+]
+
 async function deleteSelectedRows() {
   const selectedAmount = Object.keys(rowSelection.value).length
   const selectedRowIds = Object.keys(rowSelection.value)
@@ -155,46 +181,20 @@ async function deleteSelectedRows() {
   donationData.value = await loadDonations()
 }
 
-function getRowsToBeDeleted() {
+function getRowsSelected() {
   const selectedRowIds = Object.keys(rowSelection.value)
   return donationData.value.filter((_, index) => selectedRowIds.includes(index.toString()))
 }
 
-const table = useTemplateRef('table')
-
-const rowSelection = ref({})
-
-const modalStatusDelete = ref(false)
-const modalStatusAdd = ref(false)
-const modalStatusCsvExport = ref(false)
-
-const deleteColumns = unref(columns).filter((value, index) => value.id !== "select")
-
-const form = reactive({
-  date: '',
-  currentTime: false,
-  payment_method: "cash",
-  email: '',
-  amount: 0,
-  name: ''
-})
-
-const exportForm = reactive({
-  exportAll: true,
-  startDate: '',
-  endDate: ''
-})
-
-const paymentTypes = [
-  {
-    label: "Bar",
-    value: "cash"
-  },
-  {
-    label: "Banküberweisung",
-    value: "bank"
-  }
-]
+async function loadDonations() {
+  const donations = await getDonations()
+  if (!donations) return []
+  donations.forEach(donation => {
+    donation.name = donation.donator.name
+    donation.email = donation.donator.email
+  })
+  return donations.reverse()
+}
 
 const validate = () => {
   const errors: Record<string, string> = {}
@@ -256,7 +256,7 @@ async function addDonation() {
 async function exportDonationsEvent() {
   const response = await exportDonations(exportForm)
   if (response) {
-    const blob = new Blob([response], { type: 'text/csv' });
+    const blob = new Blob([response], {type: 'text/csv'});
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -275,10 +275,42 @@ async function exportDonationsEvent() {
   }
 }
 
+async function sendTaxReceipt() {
+  const selected = getRowsSelected()
+  let everythingResent = false
+  let failedId = ""
+  for (const select of selected.values()) {
+    if (select.id) {
+      const data = await sendNewTaxReceipt(select.id.toString())
+      if (!data) {
+        everythingResent = true
+        failedId = select.id.toString()
+      }
+    }
+  }
+  if (!everythingResent) {
+    toast.add({
+      title: "Spendenabrechnung erfolgreich",
+      description: "Die ausgewählten Spenden wurden erfolgreich abgesendet",
+      icon: "i-lucide-database-check",
+      color: "success"
+    })
+  } else {
+    toast.add({
+      title: "Spendenabrechnung fehlgeschlagen",
+      description: "Die ausgewählten Spenden mit der ID " + failedId + " konnten nicht abgesendet werden",
+      icon: "i-lucide-database-x",
+      color: "error"
+    })
+  }
+}
+
 const pagination = ref({
   pageIndex: 0,
   pageSize: 10
 })
+
+let donationData = ref(await loadDonations())
 
 </script>
 
@@ -286,9 +318,9 @@ const pagination = ref({
   <div class="flex-col">
     <div class="flex gap-4 mb-4">
       <UModal
-        v-model:open="modalStatusAdd"
-        title="Hinzufügen"
-        :ui="{
+          v-model:open="modalStatusAdd"
+          title="Hinzufügen"
+          :ui="{
           content: '',
           body: 'p-6'
         }"
@@ -335,7 +367,7 @@ const pagination = ref({
           </UFormField>
 
           <!-- Name -->
-          <UFormField label="Vollder Name" name="name" required>
+          <UFormField label="Voller Name" name="name" required>
             <UInput
                 v-model="form.name"
                 type="text"
@@ -377,8 +409,8 @@ const pagination = ref({
           <div class="w-full space-y-6">
             <div class="w-full overflow-x-auto">
               <UTable
-                  :data="getRowsToBeDeleted()"
-                  :columns="deleteColumns"
+                  :data="getRowsSelected()"
+                  :columns="modalColumns"
                   class="w-full"
               />
             </div>
@@ -391,10 +423,10 @@ const pagination = ref({
         </template>
       </UModal>
       <UModal
-        v-model:open="modalStatusCsvExport"
-        title="CSV Spenden Export"
-        description="Exportiere Spenden als CSV"
-        :ui="{
+          v-model:open="modalStatusCsvExport"
+          title="CSV Spenden Export"
+          description="Exportiere Spenden als CSV"
+          :ui="{
           content: '',
           body: 'p-6'
         }"
@@ -405,14 +437,49 @@ const pagination = ref({
             <UFormField name="exportAll">
               <UCheckbox label="Alle Spenden Exportieren" v-model="exportForm.exportAll"/>
             </UFormField>
-            <UFormField label="Start Datum" name="startDate" description="Das Start Datum von welchem Spenden exportiert werden sollen">
-              <UInput :disabled="exportForm.exportAll" placeholder="Start Datum" type="date" v-model="exportForm.startDate"/>
+            <UFormField label="Start Datum" name="startDate"
+                        description="Das Start Datum von welchem Spenden exportiert werden sollen">
+              <UInput :disabled="exportForm.exportAll" placeholder="Start Datum" type="date"
+                      v-model="exportForm.startDate"/>
             </UFormField>
-            <UFormField label="End Datum" name="endDate" description="Das End Datum von welchem Spenden exportiert werden sollen">
-              <UInput :disabled="exportForm.exportAll" placeholder="Start Datum" type="date" v-model="exportForm.endDate"/>
+            <UFormField label="End Datum" name="endDate"
+                        description="Das End Datum von welchem Spenden exportiert werden sollen">
+              <UInput :disabled="exportForm.exportAll" placeholder="Start Datum" type="date"
+                      v-model="exportForm.endDate"/>
             </UFormField>
           </div>
           <UButton class="mt-5" label="Exportieren" v-on:click="exportDonationsEvent"/>
+        </template>
+      </UModal>
+      <UModal
+          v-model:open="modalSendTaxReceipt"
+          title="Spendenbeleg erneut Senden"
+          description="Spenden Beleg wird per hinterlegte E-mail an den Spender gesendet"
+          :ui="{
+          content: 'w-[90vw] max-w-6xl',
+          body: 'p-6'
+        }"
+      >
+        <UButton
+            label="Spendenbeleg Senden"
+            color="primary"
+            size="xl"
+            :disabled="isEmpty(rowSelection)"
+        />
+        <template #body>
+          <div class="w-full space-y-6">
+            <div class="w-full overflow-x-auto">
+              <UTable
+                  :data="getRowsSelected()"
+                  :columns="modalColumns"
+                  class="w-full"
+              />
+            </div>
+            <UButton
+                label="Spendenbeleg Erneut Senden"
+                @click="sendTaxReceipt()"
+            />
+          </div>
         </template>
       </UModal>
     </div>

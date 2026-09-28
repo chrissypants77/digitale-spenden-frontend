@@ -2,11 +2,12 @@
 import QRCode from 'qrcode'
 const settingsStore = useSettingsStore()
 const userStore = useUserStore()
+const toast = useToast()
 
 const settingsCopy = ref(structuredClone(toRaw(settingsStore.configs)))
 
 function generateQrCode() {
-  const url = `${window.location.origin}/donate`
+  const url = `${window.location.origin}/`
 
   QRCode.toDataURL(url, {
     width: 1000,
@@ -22,6 +23,21 @@ function generateQrCode() {
     link.click()
     document.body.removeChild(link)
   })
+}
+
+async function logout() {
+  const success = await userStore.logout()
+
+  if (success) {
+    toast.add({
+      title: 'Abgemeldet',
+      description: 'Sie wurden erfolgreich abgemeldet.',
+      color: 'success',
+      icon: 'i-heroicons-check-circle-20-solid',
+      duration: 1000
+    })
+  }
+  navigateTo('/')
 }
 
 </script>
@@ -101,6 +117,9 @@ function generateQrCode() {
             </div>
             <div>
               <UButton label="QR Code Generieren" size="xl" v-on:click="generateQrCode()"/>
+            </div>
+            <div>
+              <UButton color="error" label="Abmelden" size="xl" v-on:click="logout()"/>
             </div>
           </div>
 

@@ -175,7 +175,7 @@ onMounted(() => {
           </UButton>
 
           <UButton
-              to="/donate"
+              to="/"
               size="xl"
               color="neutral"
               variant="outline"

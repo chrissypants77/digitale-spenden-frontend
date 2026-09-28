@@ -1,6 +1,7 @@
 import {defineStore} from "pinia"
 import {login} from "~/composables/requests/login.ts";
 import {validateSession} from "~/composables/requests/validateSession.ts";
+import {logout} from "~/composables/requests/logout.ts";
 
 
 export const useUserStore = defineStore("userStore", {
@@ -67,8 +68,10 @@ export const useUserStore = defineStore("userStore", {
         async logout() {
             this.loggedIn = false
             this.username = ""
+            const success = await logout()
             await cookieStore.delete("userSession")
             this.saveUserData()
+            return success
         },
 
         saveUserData(): void {

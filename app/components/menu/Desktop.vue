@@ -28,6 +28,14 @@ const props = defineProps<{
 
     <!-- Middle -->
     <div class="flex">
+      <UButton
+          label="Spenden"
+          color="primary"
+          trailing-icon="i-lucide-heart"
+          to="/"
+          class="text-lg relative z-1"
+      />
+
       <UNavigationMenu
           highlight
           highlight-color="primary"
@@ -36,14 +44,7 @@ const props = defineProps<{
           :ui="{
             link: 'text-lg',
           }"
-      />
-
-      <UButton
-          label="Spenden"
-          color="primary"
-          trailing-icon="i-lucide-heart"
-          to="/donate"
-          class="text-lg ml-4 relative z-1"
+          class="ml-4"
       />
     </div>
 

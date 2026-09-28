@@ -21,7 +21,7 @@ const route = useRoute()
 
 const secret = route.query.secret as string | undefined
 if (!secret) {
-  navigateTo('/donate')
+  navigateTo('/')
 }
 
 const config = useRuntimeConfig()
