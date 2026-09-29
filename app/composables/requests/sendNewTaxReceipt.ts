@@ -5,7 +5,8 @@ export async function sendNewTaxReceipt(id: string): Promise<boolean> {
         await $authApi("/donation/admin/resend_pdf_email", {
             method: "POST",
             body: {
-                id
+                id,
+                confirmationUrl: window.location.origin+"/payment/taxReceipt"
             }
         })
 
