@@ -125,11 +125,18 @@ async function selectAddress(result: GeoapifyResult) {
   isSelecting.value = false
 }
 
-function checkForm() {
-  if (form.street && form.houseNumber && form.postcode && form.city) {
-    isFormValid.value = true
-  }
-}
+const confirmed = ref(false)
+
+const isFormValid = computed(() => {
+  console.log('isFormValid', confirmed.value)
+  return (
+      form.street.trim() !== '' &&
+      form.houseNumber.trim() !== '' &&
+      form.postcode.trim() !== '' &&
+      form.city.trim() !== '' &&
+      confirmed.value
+  )
+})
 
 async function downloadPDF() {
   if (!isFormValid.value) {
@@ -154,12 +161,11 @@ async function downloadPDF() {
     link.href = url;
     link.download = `spenden-beleg-${secret}.pdf`;
     link.click();
+    navigateTo("/")
   } catch(error) {
     console.error(error)
   }
 }
-
-const isFormValid = ref(false)
 
 </script>
 
@@ -265,7 +271,7 @@ const isFormValid = ref(false)
     <div>
       Dies kann nur einmal Heruntergeladen werden pro Spende. Bitte Überprüfen Sie Ihre Angaben.
     </div>
-    <UCheckbox label="Ich bestätige, dass meine Angaben korrekt sind." v-on:click="checkForm()"/>
+    <UCheckbox label="Ich bestätige, dass meine Angaben korrekt sind." v-model="confirmed"/>
     <UButton label="PDF Herunterladen" :disabled="!isFormValid" v-on:click="downloadPDF()"/>
   </div>
 </template>

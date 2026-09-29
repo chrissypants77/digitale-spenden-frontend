@@ -107,11 +107,12 @@ function selectCustomAmount() {
 }
 
 async function continueDonation() {
+
   if (finalAmount.value <= 0) {
     return
   }
   const data = await initializeDonation(finalAmount.value)
-
+  console.log('continueDonation', data)
   if (!data) return
 
   window.location.replace(data.redirectUrl)
@@ -229,7 +230,7 @@ async function continueDonation() {
           block
           :disabled="finalAmount <= 0"
           class="py-4 text-lg font-semibold"
-          @click="continueDonation"
+          @click="continueDonation()"
       >
         <span class="flex items-center justify-center gap-3">
           Weiter zur Spende

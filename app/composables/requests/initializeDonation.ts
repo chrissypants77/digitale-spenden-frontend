@@ -8,19 +8,18 @@ export interface InitializeDonationReturn {
 
 export async function initializeDonation(donationAmount: number): Promise<InitializeDonationReturn | false> {
     const { $api } = useNuxtApp()
-    const generatedId = crypto.randomUUID()
 
     try {
         return await $api<InitializeDonationReturn>(`/donation/begin`, {
-            method: 'GET',
+            method: 'POST',
             body: JSON.stringify({
-                id: generatedId,
                 amount: donationAmount,
-                returnUrl: window.location.origin+"/payment/confirm?id=" + generatedId,
-                cancelUrl: window.location.origin+"/payment/cancel?id=" + generatedId,
+                returnUrl: window.location.origin+"/payment/confirm",
+                cancelUrl: window.location.origin+"/payment/cancel"
             })
         })
     } catch (error) {
+        console.log(error)
         return false
     }
 }

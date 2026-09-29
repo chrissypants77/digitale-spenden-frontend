@@ -10,7 +10,10 @@ export async function confirm(id: string): Promise<ConfirmResponse | false> {
 
     try {
         return await $api<ConfirmResponse>(`/donation/status/${id}`, {
-            method: 'GET'
+            method: 'GET',
+            query: {
+                confirmationUrl: window.location.origin + "/payment/taxReceipt"
+            }
         })
     } catch (error) {
         return false
